@@ -4,6 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Helper to produce a readable participant label
+  function getParticipantLabel(p) {
+    if (typeof p === "string") return p;
+    if (p && typeof p === "object") return p.name || p.email || JSON.stringify(p);
+    return String(p);
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
@@ -25,7 +32,28 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+
+          <div class="participants-section">
+            <h5>Participants</h5>
+            <ul class="participant-list"></ul>
+          </div>
         `;
+
+        // Populate participants list safely using DOM methods
+        const list = activityCard.querySelector(".participant-list");
+        if (Array.isArray(details.participants) && details.participants.length > 0) {
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+            li.className = "participant-item";
+            li.textContent = getParticipantLabel(p);
+            list.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.className = "participant-item empty";
+          li.textContent = "No participants yet";
+          list.appendChild(li);
+        }
 
         activitiesList.appendChild(activityCard);
 
